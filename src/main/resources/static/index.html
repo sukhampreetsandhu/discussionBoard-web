@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discussion Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .post-card {
+            background: #ffffff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .post-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Discussion Board</h1>
+
+    <h2>Register User</h2>
+    <input id="fullName" placeholder="Full Name">
+    <input id="userName" placeholder="Username">
+    <button onclick="registerUser()">Register</button>
+
+    <h2>Create Post</h2>
+    <input id="postUser" placeholder="Username">
+    <input id="title" placeholder="Title">
+    <input id="body" placeholder="Post Body">
+    <button onclick="createPost()">Post</button>
+
+    <h2>Search Posts</h2>
+    <input id="searchUser" placeholder="Username">
+    <button onclick="searchPosts()">Search</button>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+    async function registerUser() {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: document.getElementById("fullName").value,
+                userName: document.getElementById("userName").value
+            })
+        });
+
+        const text = await response.text();
+        document.getElementById("result").innerHTML = text;
+    }
+
+    async function createPost() {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userName: document.getElementById("postUser").value,
+                title: document.getElementById("title").value,
+                body: document.getElementById("body").value
+            })
+        });
+
+        const text = await response.text();
+        document.getElementById("result").innerHTML = text;
+    }
+
+    async function searchPosts() {
+        const user = document.getElementById("searchUser").value;
+        const response = await fetch(`/api/posts?userName=${user}`);
+        const text = await response.text();
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+
+        // Split posts by line if your backend returns text
+        const posts = text.split("\n");
+
+        posts.forEach(post => {
+            if (post.trim() !== "") {
+                const card = document.createElement("div");
+                card.className = "post-card";
+                card.innerHTML = `<div class="post-title">${post}</div>`;
+                resultDiv.appendChild(card);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
